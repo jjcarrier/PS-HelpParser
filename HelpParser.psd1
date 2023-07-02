@@ -34,8 +34,8 @@
 
         PSData = @{
             Tags = @('Tab-Completion', 'CompletionResult', 'HelpDoc')
-            LicenseUri = 'https://github.com/jjcarrier/HelpParser/blob/main/LICENSE'
-            ProjectUri = 'https://github.com/jjcarrier/HelpParser'
+            LicenseUri = 'https://github.com/jjcarrier/PS-HelpParser/blob/main/LICENSE'
+            ProjectUri = 'https://github.com/jjcarrier/PS-HelpParser'
             # IconUri = ''
             # ReleaseNotes = ''
             # Prerelease = ''
