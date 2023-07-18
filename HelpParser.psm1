@@ -71,9 +71,8 @@ function Get-ParsedHelpParams {
 		$parsedParams = @()
 	}
 	process {
-		$currentLine = [string]$_
 		$indentCount = 0
-		$paramLineElems = Get-ParsedHelpLineElements -HelpLine $currentLine  -IndentationCount ([ref]$indentCount)
+		$paramLineElems = Get-ParsedHelpLineElements -HelpLine $HelpLine  -IndentationCount ([ref]$indentCount)
 
 		if ($null -ne $paramLineElems) {
 			# TODO: check if the last processed paramLineElems had siblings, if so, copy the last sibling's $Tail to each of the other siblings.
@@ -93,7 +92,7 @@ function Get-ParsedHelpParams {
 					Param = $param.TrimEnd('[').Replace('[=','')
 					Values = @()
 					LineNumber = $lineNumber
-					Line = $currentLine#.Trim()
+					Line = $HelpLine
 					Tail = @()
 					TailEnd = $false
 					Indent = $indentCount
@@ -116,7 +115,7 @@ function Get-ParsedHelpParams {
 						Param = $paramAlt.TrimEnd('[').Replace('[=','')
 						Values = @()
 						LineNumber = $lineNumber
-						Line = $currentLine#.Trim()
+						Line = $HelpLine
 						Tail = @()
 						TailEnd = $false
 						Indent = $indentCount
@@ -127,10 +126,10 @@ function Get-ParsedHelpParams {
 				}
 			}
 		} elseif ($parsedParams.Count -gt 0) {
-			if ([string]::IsNullOrWhiteSpace($currentLine)) {
+			if ([string]::IsNullOrWhiteSpace($HelpLine)) {
 				$parsedParams[-1].TailEnd = $true
 			} elseif (-not($parsedParams[-1].TailEnd)) {
-				$parsedParams[-1].Tail += $currentLine
+				$parsedParams[-1].Tail += $HelpLine
 			}
 		}
 
@@ -184,12 +183,12 @@ function Get-ParsedHelpOptions {
 #>
 function New-ParsedHelpParamCompletionResult
 {
-	[CmdletBinding()]
+	[CmdletBinding(SupportsShouldProcess)]
 	[OutputType([System.Management.Automation.CompletionResult])]
 	param (
 		# Metadata for the currently processed parameter to determine whether it
 		# is a relevant tab-completion result.
-		[Parameter(, ValueFromPipeline)]
+		[Parameter(ValueFromPipeline)]
 		[object]$ParamInfo,
 
 		# The word to provide tab-completion results for.
@@ -211,11 +210,13 @@ function New-ParsedHelpParamCompletionResult
 				$listItem += ' '
 			}
 
-			[System.Management.Automation.CompletionResult]::new(
-				$ParamInfo.Param,
-				$listItem,
-				"ParameterName",
-				$toolTip)
+			if ($PSCmdlet.ShouldProcess("New $($ParamInfo.Param) CompletionResult")) {
+				[System.Management.Automation.CompletionResult]::new(
+					$ParamInfo.Param,
+					$listItem,
+					"ParameterName",
+					$toolTip)
+			}
 		}
 	}
 }
@@ -258,7 +259,8 @@ function Get-ParsedHelpPrevParam
 #>
 function New-ParsedHelpValueCompletionResult
 {
-	[CmdletBinding()]
+	[CmdletBinding(SupportsShouldProcess)]
+	[OutputType([System.Management.Automation.CompletionResult])]
 	param (
 		# The value to create a completion result for.
 		[Parameter(ValueFromPipeline)]
@@ -271,11 +273,13 @@ function New-ParsedHelpValueCompletionResult
 	)
 
 	process {
-		[System.Management.Automation.CompletionResult]::new(
-			"$ResultPrefix$ParamValue",
-			$ParamValue,
-			"ParameterValue",
-			'Enumerated Parameter Value')
+		if ($PSCmdlet.ShouldProcess("New $($ParamInfo.Param) CompletionResult")) {
+			[System.Management.Automation.CompletionResult]::new(
+				"$ResultPrefix$ParamValue",
+				$ParamValue,
+				"ParameterValue",
+				'Enumerated Parameter Value')
+		}
 	}
 }
 
@@ -335,7 +339,6 @@ function Get-ParsedHelpParamValues
 	}
 
 	process {
-
 		if ($paramName.Contains('=')) { return }
 
 		$HelpLine |
