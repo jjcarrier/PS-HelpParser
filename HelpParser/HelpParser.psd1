@@ -1,6 +1,6 @@
 @{
     RootModule = 'HelpParser.psm1'
-    ModuleVersion = '0.1.2'
+    ModuleVersion = '0.2.0'
     GUID = 'f36e4dd6-6d0b-4184-8f20-405c9670138f'
     Author = 'Jon Carrier'
     CompanyName = 'Unknown'
@@ -16,10 +16,10 @@
     # NestedModules = @()
 
     FunctionsToExport = @(
-        "Get-ParsedHelpParams",
-        "Get-ParsedHelpFlags",
-        "Get-ParsedHelpOptions",
-        "Get-ParsedHelpParamValues",
+        "Get-ParsedHelpParam",
+        "Get-ParsedHelpFlag",
+        "Get-ParsedHelpOption",
+        "Get-ParsedHelpParamValue",
         "New-ParsedHelpParamCompletionResult",
         "New-ParsedHelpValueCompletionResult"
     )
