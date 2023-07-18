@@ -2,7 +2,7 @@
 .DESCRIPTION
 	Parses a single line of help data for flag and option parameters.
 #>
-function Get-ParsedHelpLineElements {
+function Get-ParsedHelpLineElement {
 	[CmdletBinding()]
 	param (
 		# The help data to parse.
@@ -58,7 +58,7 @@ function Get-ParsedHelpLineElements {
 .DESCRIPTION
 	Parses the provided help data for flag and option parameters.
 #>
-function Get-ParsedHelpParams {
+function Get-ParsedHelpParam {
 	[CmdletBinding()]
 	param (
 		# The help data to parse.
@@ -72,7 +72,7 @@ function Get-ParsedHelpParams {
 	}
 	process {
 		$indentCount = 0
-		$paramLineElems = Get-ParsedHelpLineElements -HelpLine $HelpLine  -IndentationCount ([ref]$indentCount)
+		$paramLineElems = Get-ParsedHelpLineElement -HelpLine $HelpLine  -IndentationCount ([ref]$indentCount)
 
 		if ($null -ne $paramLineElems) {
 			# TODO: check if the last processed paramLineElems had siblings, if so, copy the last sibling's $Tail to each of the other siblings.
@@ -144,7 +144,7 @@ function Get-ParsedHelpParams {
 .DESCRIPTION
 	Parses the provided help data for flag parameters.
 #>
-function Get-ParsedHelpFlags {
+function Get-ParsedHelpFlag {
 	[CmdletBinding()]
 	[OutputType([PSCustomObject])]
 	param (
@@ -154,7 +154,7 @@ function Get-ParsedHelpFlags {
 	)
 
 	process {
-		$HelpData | Get-ParsedHelpParams | Where-object { -not $_.Param.StartsWith('--') }
+		$HelpData | Get-ParsedHelpParam | Where-object { -not $_.Param.StartsWith('--') }
 	}
 }
 
@@ -162,7 +162,7 @@ function Get-ParsedHelpFlags {
 .DESCRIPTION
 	Parses the provided help data for option parameters.
 #>
-function Get-ParsedHelpOptions {
+function Get-ParsedHelpOption {
 	[CmdletBinding()]
 	[OutputType([PSCustomObject])]
 	param (
@@ -172,7 +172,7 @@ function Get-ParsedHelpOptions {
 	)
 
 	process {
-		$HelpData | Get-ParsedHelpParams | Where-object { $_.Param.StartsWith('--') }
+		$HelpData | Get-ParsedHelpParam | Where-object { $_.Param.StartsWith('--') }
 	}
 }
 
@@ -288,7 +288,7 @@ function New-ParsedHelpValueCompletionResult
 	Parses the provided help data for accepted values for previously specified
 	parameter in the command line's AST.
 #>
-function Get-ParsedHelpParamValues
+function Get-ParsedHelpParamValue
 {
 	[CmdletBinding()]
 	param (
@@ -342,7 +342,7 @@ function Get-ParsedHelpParamValues
 		if ($paramName.Contains('=')) { return }
 
 		$HelpLine |
-			Get-ParsedHelpParams |
+			Get-ParsedHelpParam |
 			Where-Object { ($_.Param -match "^$paramName=?$") -and ($_.Values.Count -gt 0) } |
 			ForEach-Object { $_.Values } |
 			Where-Object { $_ -like "$paramValue*" }
