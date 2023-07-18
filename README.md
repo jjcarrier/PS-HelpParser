@@ -15,16 +15,17 @@ support for arbitrary cmd/bash-centric CLI tools.
 
 ## Installation
 
-Initialize the repository:
-
-Add the following to `$PROFILE` replacing `$PathToHelpParserPsm1` with the path
-to the HelpParser `.psm1` file:
+Install the module from `PSGallery`:
 
 ```pwsh
-Import-Module $PathToHelpParserPsm1
+Install-Module -Name HelpParser -Repository PSGallery
 ```
 
-Alternatively, this module may be installed in the [$PSModulePath](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath?view=powershell-7.3)
+Load the module via:
+
+```pwsh
+Import-Module HelpParser
+```
 
 ## Usage
 
