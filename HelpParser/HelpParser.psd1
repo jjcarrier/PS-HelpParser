@@ -36,7 +36,7 @@
     PrivateData = @{
 
         PSData = @{
-            Tags = @('Tab-Completion', 'CompletionResult', 'HelpDoc')
+            Tags = @('Windows', 'MacOS', 'Linux', 'Tab-Completion', 'CompletionResult', 'HelpDoc')
             LicenseUri = 'https://github.com/jjcarrier/PS-HelpParser/blob/main/LICENSE'
             ProjectUri = 'https://github.com/jjcarrier/PS-HelpParser'
             # IconUri = ''

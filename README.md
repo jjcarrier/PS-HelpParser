@@ -1,10 +1,11 @@
 # HelpParser PowerShell Module
 
+![PSGallery](https://img.shields.io/powershellgallery/p/HelpParser)
+[![CI](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml/badge.svg)](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml)
+
 __This is a work in progress.__
 
 There are known flaws, but it is in a very much usable state.
-
-[![CI](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml/badge.svg)](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml)
 
 ## Description
 
