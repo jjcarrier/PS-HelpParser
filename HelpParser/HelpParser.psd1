@@ -15,8 +15,7 @@
     # FormatsToProcess = @()
     # NestedModules = @()
 
-    FunctionsToExport = @()
-    CmdletsToExport = @(
+    FunctionsToExport = @(
         "Get-ParsedHelpParams",
         "Get-ParsedHelpFlags",
         "Get-ParsedHelpOptions",
@@ -24,11 +23,15 @@
         "New-ParsedHelpParamCompletionResult",
         "New-ParsedHelpValueCompletionResult"
     )
+    CmdletsToExport = @()
     VariablesToExport = '*'
     AliasesToExport = @()
 
     # ModuleList = @()
-    # FileList = @()
+    FileList = @(
+        'HelpParser.psd1',
+        'HelpParser.psm1'
+    )
 
     PrivateData = @{
 

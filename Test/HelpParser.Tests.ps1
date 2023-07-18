@@ -1,7 +1,7 @@
 # Basic tests verification tests performed on various help output.
 
 BeforeAll {
-  Import-Module "$PSScriptRoot\HelpParser.psm1"
+  Import-Module "$PSScriptRoot\..\HelpParser\HelpParser.psm1"
 }
 
 # TODO: Fix parsing these lines
