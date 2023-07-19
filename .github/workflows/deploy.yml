@@ -1,0 +1,23 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+  # Allow manually triggering of the workflow.
+  workflow_dispatch: {}
+
+env:
+  MODULE_NAME: HelpParser
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Publish module to PSGallery
+        run: |
+          Publish-Module -Name ".\$env:MODULE_NAME\$env:MODULE_NAME.psd1" -NuGetApiKey ${{ secrets.PS_GALLERY_KEY }}
