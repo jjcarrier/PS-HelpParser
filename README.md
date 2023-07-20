@@ -3,9 +3,9 @@
 ![PSGallery](https://img.shields.io/powershellgallery/p/HelpParser)
 [![CI](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml/badge.svg)](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml)
 
-__This is a work in progress.__
-
-There are known flaws, but it is in a very much usable state.
+> **Note**
+> This is a work in progress.
+  There are known flaws, but it is in a very much usable state.
 
 ## Description
 
@@ -33,8 +33,9 @@ Below is a simple example of providing basic tab completion to `gcc`. This serve
 as a template which can be reused for many other commands supporting well-structured
 help documentation. In such cases, it is likely sufficient to replace the
 occurrences of `gcc` found below with the desired command. Some commands output
-to stderr instead of stdout for help documentation, in such cases IO-redirection
-(i.e. `2>&1` must be used) before piping the output to the `HelpParser` cmdlets.
+to other output streams such as `stderr` instead of `stdout` for help
+documentation. In such cases, IO-redirection should be used (i.e. `2>&1`) before
+piping the output to the `HelpParser` cmdlets.
 
 ```pwsh
 $gccScriptBlock = {
@@ -64,37 +65,40 @@ $gccScriptBlock = {
 Register-ArgumentCompleter -CommandName gcc -Native -ScriptBlock $gccScriptBlock
 ```
 
-> NOTE: The above could be customized further to use `gcc -v --help` to obtain
-  even more tab completion results, but this comes at the expense of processing
-  time. In a future, version of this module a feature may be introduced to
-  cache the processed tab-completion results to a file which could be
-  deserialized instead of re-parsing the help data every time. This should
-  improve responsiveness in such cases. For such an implementation, is would be
-  advisable to at a minimum check the tool's version to determine if caches
-  should be invalidated.
+> **Note**
+> The above could be customized further to use `gcc -v --help` to obtain even
+  more tab completion results, but this comes at the expense of processing time.
+  In a future, version of this module a feature may be introduced to cache the
+  processed tab-completion results to a file which could be deserialized instead
+  of re-parsing the help data every time. This should improve responsiveness in
+  such cases. For such an implementation, is would be advisable to at a minimum
+  check the tool's version to determine if caches should be invalidated.
 
-For a repository containing many examples utilizing this module (among other methods
-of tab completion) see:
+The repository linked below contains many examples utilizing this module (among
+other methods of tab completion):
 
+[PS-TabCompletions](https://github.com/jjcarrier/PS-TabCompletions)
 
 ### Shortcomings
 
 One major flaw for this approach of tab completion is that it is a very much
 manual process of defining/registering argument completers (via `Register-ArgumentCompleter`)
 for all of the utilities one may use. This gets to be a bit laborious since,
-many of such tools tend to be very similar in command help documentation format
+many CLI programs tend to be very similar in command help documentation format
 and can utilize the same logic for parsing.
 
-TODO: Add a helper script `New-HelpParserArgumentCompleter` which will create a
-new file containing the command of interest. This would require:
+A future version of this module will likely introduce a helper cmdlet,
+`New-HelpParserArgumentCompleter`, which will create a new file containing the
+command of interest. This would require:
 
-* Input for the command to execute to request the help-output for a given command and will assume
-  the first word/argument in the command is the command to register.
+* Input for the command to execute to request the help-output for a given
+  command and will assume the first word/argument in the command is the command
+  to register.
 * A destination where to save the new module.
 
 Another significant limitation of this module is that it currently does not have
 a way to dig deeper into a sub-command's help documentation, this feature may be
-added later on, but may require significant rework of the underlying parsing
+added later on, but likely requires significant rework of the underlying parsing
 logic.
 
 ## Known Issues
