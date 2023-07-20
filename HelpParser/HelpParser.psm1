@@ -362,3 +362,103 @@ function Get-ParsedHelpParamValue
             Where-Object { $_ -like "$paramValue*" }
     }
 }
+
+<#
+.DESCRIPTION
+    Generates an ArgumentCompleter code for the specified command.
+    This will be output the specified file.
+#>
+function New-HelpParserTabCompleter
+{
+    [CmdletBinding()]
+    param(
+        # The file to write the code to. This should either be a .psm1 or
+        # .ps1 file.
+        [Parameter(Mandatory)]
+        [string]$OutFile,
+
+        # The command the argument completer is for. This should the name of a
+        # native command (i.e. a binary executable) without any file extension.
+        [Parameter(Mandatory)]
+        [string]$CommandName,
+
+        # The command required to get the help documentation to be parsed. This
+        # should output at raw text. If the resulting tab-completion is not to
+        # expectations, consider applying some prefiltering to provide cleaner
+        # more concise data to parse.
+        [Parameter(Mandatory)]
+        [string]$HelpCommand,
+
+        # Indicates that the command follows MS-DOS style options using
+        # foward-slash for options/flags and colon for parameter value assignment.
+        [Parameter()]
+        [switch]$MsDosMode,
+
+        # If the file to write to already exists, specify this switch to
+        # indicate that it is ok to (over)write the file.
+        [Parameter()]
+        [switch]$Force,
+
+        # Specify this switch to indicate that the file should be appended to
+        # instead of overwritten.
+        [Parameter()]
+        [switch]$Append
+    )
+
+    $standardTextSegement = @'
+    if ($wordToComplete.StartsWith("--") -and -not $paramValueAssign) {
+        Get-ParsedHelpFlag -HelpData $helpData |
+            New-ParsedHelpParamCompletionResult -WordToComplete $wordToComplete
+    } elseif ($wordToComplete.StartsWith("-") -and -not $paramValueAssign) {
+        Get-ParsedHelpFlag -HelpData $helpData |
+            New-ParsedHelpParamCompletionResult -WordToComplete $wordToComplete
+'@
+
+    $msDosTextSegement = @'
+    if ($wordToComplete.StartsWith("/") -and -not $paramValueAssign) {
+        Get-ParsedHelpFlag -HelpData $helpData |
+            New-ParsedHelpParamCompletionResult -WordToComplete $wordToComplete
+'@
+
+    $text = @'
+
+$ScriptBlock = {
+    param($wordToComplete, $commandAst, $cursorPosition)
+
+    $helpData = Invoke-Expression $HelpCommand
+    $paramValueAssign = $wordToComplete.Contains('$assignToken') -and $wordToComplete.IndexOf('$assignToken') -lt $cursorPosition
+$TextSegment
+    } else {
+        $resultPrefix = ''
+        $values = $helpData |
+            Get-ParsedHelpParamValue `
+                -WordToComplete $wordToComplete `
+                -CommandAst $commandAst `
+                -CursorPosition $cursorPosition `
+                -ParamValueAssignment:$paramValueAssign `
+                -ResultPrefix ([ref]$resultPrefix)
+        $values | New-ParsedHelpValueCompletionResult -ResultPrefix $resultPrefix
+    }
+}
+
+Register-ArgumentCompleter -CommandName $CommandName -Native -ScriptBlock $ScriptBlock
+'@
+
+    if ($MsDosMode) {
+        $text = $text.Replace('$TextSegment', $msDosTextSegement)
+        $text = $text.Replace('$assignToken', ':')
+    } else {
+        $text = $text.Replace('$TextSegment', $standardTextSegement)
+        $text = $text.Replace('$assignToken', '=')
+    }
+
+    $text = $text.Replace('$HelpCommand', "'$HelpCommand'")
+    $text = $text.Replace('$CommandName', "'$CommandName'")
+    $text = $text.Replace('$ScriptBlock', "`$$($CommandName)ScriptBlock")
+
+    if (-not($Force) -and (Test-Path -PathType Leaf $OutFile)) {
+        Write-Error "File already exists. Use -Force to overwrite."
+    }
+
+    $text | Out-File -FilePath $OutFile -Append:$Append
+}
