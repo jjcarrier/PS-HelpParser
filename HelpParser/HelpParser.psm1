@@ -99,12 +99,26 @@ function Get-ParsedHelpParam {
                     Sibling = $sibling
                 }
 
-                # TODO: support function argument to customize this?
-                # CMAKE has format such as: "--log-level=<ERROR|WARNING|NOTICE|STATUS|VERBOSE|DEBUG|TRACE>"
-                # Others use --option=[VALUE1|VALUE2] or --option[=VALUE1|VALUE2]
-                $paramValues = @($item.Line | Select-String "(=\[|\[=)[a-zA-Z0-9\|<>]+\]")
-                if ($paramValues.Count -gt 0) {
-                    $item.Values = @($paramValues.Matches[0].Value.Substring(2).TrimEnd(']').Split('|'))
+                # Extract parameters values.
+                # Positive Lookbehind (?<=TEXT) and Positive Lookahead are used
+                # below (?=TEXT) to match the elements between the brackets and
+                # pipes. One form that is rather complicated to parse is gcc's,
+                # but catching the [^] may introduce issues elsewhere.
+                # --help={common|optimizers|params|target|warnings|[^]{joined|separate|undocumented}}[,...].
+                # NOTE: Consider supporting a function-argument to customize this.
+                $openSquareBracketPipeRegEx = '(?<=\[)[^\[\]\|]*(?=\|)'
+                $pipeCloseSquareBracketRegex = '(?<=\|)[^\[\]\|]*(?=\])'
+                $openCurlyBracketPipeRegEx = '(?<=\{)[^\{\}\|]*(?=\|)'
+                $pipeCloseCurelyBracketRegex = '(?<=\|)[^\{\}\|]*(?=\})'
+                $openAngleBracketPipeRegEx = '(?<=\<)[^\<\>\|]*(?=\|)'
+                $pipeCloseAngleBracketRegex = '(?<=\|)[^\<\>\|]*(?=\>)'
+                $pipePipeRegEx = '(?<=\|)[^\[\]\|]*(?=\|)'
+                $valueExtractionRegEx = "$openSquareBracketPipeRegEx|$pipeCloseSquareBracketRegex|$openCurlyBracketPipeRegEx"
+                $valueExtractionRegEx += "|$pipeCloseCurelyBracketRegex|$openAngleBracketPipeRegEx|$pipeCloseAngleBracketRegex|$pipePipeRegEx"
+                $paramValues = @($item.Line | Select-String -AllMatches $valueExtractionRegEx)
+
+                if ($paramValues.Matches.Count -gt 0) {
+                    $item.Values = $paramValues.Matches.Value | ForEach-Object { $_.TrimStart('=') }
                 }
 
                 $parsedParams += $item
