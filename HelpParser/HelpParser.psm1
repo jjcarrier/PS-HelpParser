@@ -79,7 +79,16 @@ function Get-ParsedHelpParam {
         $paramLineElems = Get-ParsedHelpLineElement -HelpLine $HelpLine  -IndentationCount ([ref]$indentCount)
 
         if ($null -ne $paramLineElems) {
-            # TODO: check if the last processed paramLineElems had siblings, if so, copy the last sibling's $Tail to each of the other siblings.
+            # Before processing new parameter, copy the $Tail data to each
+            # sibling of the last parameter.
+            if ($parsedParams.Count -gt 0) {
+                $sibling = $parsedParams[-1].Sibling.Value
+                while ($null -ne $sibling) {
+                    $sibling.Tail = $parsedParams[-1].Tail
+                    $sibling = $sibling.Sibling.Value
+                }
+            }
+
             $sibling = [ref]$null
             $paramLineElems.Value | ForEach-Object {
                 $param = $_
@@ -133,6 +142,7 @@ function Get-ParsedHelpParam {
                 $parsedParams += $item
                 $sibling = [ref]($item)
 
+                # Add the alternative form of a parameter (param name contains '[' ']').
                 if ($null -ne $paramAlt) {
                     $item = [PSCustomObject]@{
                         Param = $paramAlt.TrimEnd('[').Replace('[=','')
@@ -144,6 +154,11 @@ function Get-ParsedHelpParam {
                         Indent = $indentCount
                         Sibling = $sibling
                     }
+
+                    if ($paramValues.Matches.Count -gt 0) {
+                        $item.Values = $paramValues.Matches.Value | ForEach-Object { $_.TrimStart('=') }
+                    }
+
                     $parsedParams += $item
                     $sibling = [ref]($item)
                 }
