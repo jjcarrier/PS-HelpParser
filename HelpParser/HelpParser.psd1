@@ -1,6 +1,6 @@
 @{
     RootModule = 'HelpParser.psm1'
-    ModuleVersion = '0.3.0'
+    ModuleVersion = '0.3.1'
     GUID = 'f36e4dd6-6d0b-4184-8f20-405c9670138f'
     Author = 'Jon Carrier'
     CompanyName = 'Unknown'
@@ -21,7 +21,8 @@
         "Get-ParsedHelpOption",
         "Get-ParsedHelpParamValue",
         "New-ParsedHelpParamCompletionResult",
-        "New-ParsedHelpValueCompletionResult"
+        "New-ParsedHelpValueCompletionResult",
+        "New-HelpParserTabCompleter"
     )
     CmdletsToExport = @()
     VariablesToExport = '*'
