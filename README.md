@@ -27,93 +27,86 @@ Load the module via:
 Import-Module HelpParser
 ```
 
-## Usage
+## PSReadLine
 
-Below is a simple example of providing basic tab completion to `gcc`. This serves
-as a template which can be reused for many other commands supporting well-structured
-help documentation. In such cases, it is likely sufficient to replace the
-occurrences of `gcc` found below with the desired command. Some commands output
-to other output streams such as `stderr` instead of `stdout` for help
-documentation. In such cases, IO-redirection should be used (i.e. `2>&1`) before
-piping the output to the `HelpParser` cmdlets.
+Persumably, users of this module are using it to gain easy to implement
+tab-completion for their favorite CLI programs in PowerShell.
+
+For full featured (tab)completion it is recommended to enable PSReadLine, this
+may already be installed on the system, but it can be installed/updated from
+PSGallery.
 
 ```pwsh
-$gccScriptBlock = {
-    param($wordToComplete, $commandAst, $cursorPosition)
-
-    $helpData = gcc --help
-    $paramValueAssign = $wordToComplete.Contains('=') -and $wordToComplete.IndexOf("=") -lt $cursorPosition
-    if ($wordToComplete.StartsWith("--") -and -not $paramValueAssign) {
-        Get-ParsedHelpOption -HelpData $helpData |
-            New-ParsedHelpParamCompletionResult -WordToComplete $wordToComplete
-    } elseif ($wordToComplete.StartsWith("-") -and -not $paramValueAssign) {
-        Get-ParsedHelpFlag -HelpData $helpData |
-            New-ParsedHelpParamCompletionResult -WordToComplete $wordToComplete
-    } else {
-        $resultPrefix = ''
-        $values = $helpData |
-            Get-ParsedHelpParamValue `
-                -WordToComplete $wordToComplete `
-                -CommandAst $commandAst `
-                -CursorPosition $cursorPosition `
-                -ParamValueAssignment:$paramValueAssign `
-                -ResultPrefix ([ref]$resultPrefix)
-        $values | New-ParsedHelpValueCompletionResult -ResultPrefix $resultPrefix
-    }
-}
-
-Register-ArgumentCompleter -CommandName gcc -Native -ScriptBlock $gccScriptBlock
+Install-Module -Name "PSReadLine" -Repository PSGallery
 ```
 
-> **Note**
-> The above could be customized further to use `gcc -v --help` to obtain even
-  more tab completion results, but this comes at the expense of processing time.
-  In a future, version of this module a feature may be introduced to cache the
-  processed tab-completion results to a file which could be deserialized instead
-  of re-parsing the help data every time. This should improve responsiveness in
-  such cases. For such an implementation, is would be advisable to at a minimum
-  check the tool's version to determine if caches should be invalidated.
+The following is a configuration a recommended configuration that can be added
+to `$PROFILE`. The last line being the most essential setting.
+
+```pwsh
+Set-PSReadLineOption -HistoryNoDuplicates:$true
+Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+Set-PSReadLineKeyHandler -Function AcceptNextSuggestionWord -Chord Ctrl+Shift+RightArrow
+Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+```
+
+## Usage
+
+To create a new tab-completion handler, use the following cmdlet to generate
+the required block of code and output it to a file. In this example a program
+called "test" will have code generated to support tab-completion and its help
+documentation is accessible via the command `test --help`.
+
+```pwsh
+New-HelpParserTabCompleter -OutFile TestCompleter.psm1 -CommandName test -HelpCommand "test --help"
+```
+
+Once created, import the new module in your `$PROFILE` or manually load it:
+
+```pwsh
+Import-Module ./TestCompleter.psm1
+```
+
+This generated code serves as a template and is suitable for most CLI programs.
+It may be necessary to customize this further (i.e. filter the help-data prior
+to passing it into the various routines).
 
 The repository linked below contains many examples utilizing this module (among
 other methods of tab completion):
 
 [PS-TabCompletions](https://github.com/jjcarrier/PS-TabCompletions)
 
+> **Note**
+> The examples provided in the repo linked above are not necessarily complete
+  solutions. For instance the `gcc` handling could be customized further to use
+  `gcc -v --help` to obtain even more tab completion results, but this comes at
+  the expense of processing time. In a future version of this module, a feature
+  may be introduced to cache the processed tab-completion results to a file
+  which could be deserialized instead of re-parsing the help data every time.
+  This should improve responsiveness in such cases. For such an implementation,
+  it would be advisable to at a minimum check the tool's version to determine if
+  caches should be invalidated.
+
+### Tab-Completion Examples
+
+An example using parameter value completion:
+![CMake Example](img/cmake_tab_completion.png)
+
+An example using an program that uses Win32/MS-DOS style arguments:
+![IPConfig Example](img/ipconfig_tab_completion.png)
+
+Other examples of popular tools (one showing available options another showing
+available flags):
+![FuzzyFinder Example](img/fzf_tab_completion.png)
+![RipGrep Example](img/rg_tab_completion.png)
+
 ### Shortcomings
 
-One major flaw for this approach of tab completion is that it is a very much
-manual process of defining/registering argument completers (via `Register-ArgumentCompleter`)
-for all of the utilities one may use. This gets to be a bit laborious since,
-many CLI programs tend to be very similar in command help documentation format
-and can utilize the same logic for parsing.
-
-A future version of this module will likely introduce a helper cmdlet,
-`New-HelpParserArgumentCompleter`, which will create a new file containing the
-command of interest. This would require:
-
-* Input for the command to execute to request the help-output for a given
-  command and will assume the first word/argument in the command is the command
-  to register.
-* A destination where to save the new module.
-
-Another significant limitation of this module is that it currently does not have
-a way to dig deeper into a sub-command's help documentation, this feature may be
-added later on, but likely requires significant rework of the underlying parsing
-logic.
-
-## Known Issues
-
-These are the currently known issues:
-
-* Help lines like those found in cmake such as the below are not parsed correctly:
-  `-h,-H,--help,-help,-usage,/? = Print usage information and exit.`
-* Parameter values seen in programs like cmake that use `<` and `>` to both indicate
-  a variable substitution and enumerated values for a parameter are not supported.
-  Unfortunately, it seems there is not even a consistency with casing to differentiate
-  between the two. It may be possible to solve this issue by providing a feature
-  where the user can explicitly supply a parameter value list for a given parameter.
-* Parameter values seen in programs like rustc do not work:
-  `--crate-type [bin|lib|rlib|dylib|cdylib|staticlib|proc-macro]`
+A significant limitation of this module is that it currently does not have a way
+to dig deeper into a sub-command's help documentation, this feature may be added
+later on, but likely requires significant rework of the underlying parsing logic.
 
 ## Testing
 
