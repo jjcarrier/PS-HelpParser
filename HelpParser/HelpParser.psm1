@@ -11,12 +11,12 @@ function Get-ParsedHelpLineElement {
 
         # The regular expression to use to extract options and flags.
         [Parameter()]
-        [string]$RegEx = "^\s*((-{1,2}|/)[a-zA-Z0-9#]{1}[a-zA-Z0-9\-#\[\]]*)[=\s,]?",
+        [string]$RegEx = '^\s*((-{1,2}|/)[a-zA-Z0-9#]{1}[a-zA-Z0-9\-#\[\]]*)[=\s,]?',
 
         # A pre-condition for qualifying the $HelpLine as a line containing
         # parameter elements.
         [Parameter()]
-        [string]$PreConditionRegEx = "^\s*(-{1,2}|/)",
+        [string]$PreConditionRegEx = '^\s*(-{1,2}|/)',
 
         # An output that indicates how many spaces the parameter was indented by.
         # This is mainly intended to provide a convinient way to remove indentation
@@ -258,8 +258,8 @@ function Get-ParsedHelpPrevParam
     $prev = $CommandAst.CommandElements[-1].ToString()
 
     if ($CursorPosition -le $c.Length) {
-        $r = $c.LastIndexOf(" ", $CursorPosition)
-        $l = $c.LastIndexOf(" ", $r - 1)
+        $r = $c.LastIndexOf(' ', $CursorPosition)
+        $l = $c.LastIndexOf(' ', $r - 1)
 
         while ($c[$r - 1] -eq ' ') {
             $r = $r - 1
@@ -296,8 +296,8 @@ function New-ParsedHelpValueCompletionResult
             [System.Management.Automation.CompletionResult]::new(
                 "$ResultPrefix$ParamValue",
                 $ParamValue,
-                "ParameterValue",
-                'Enumerated Parameter Value')
+                'ParameterValue',
+                'Parameter Value')
         }
     }
 }
@@ -462,7 +462,7 @@ Register-ArgumentCompleter -CommandName $CommandName -Native -ScriptBlock $Scrip
     $text = $text.Replace('$ScriptBlock', "`$$($CommandName)ScriptBlock")
 
     if (-not($Force) -and (Test-Path -PathType Leaf $OutFile)) {
-        Write-Error "File already exists. Use -Force to overwrite."
+        Write-Error 'File already exists. Use -Force to overwrite.'
     }
 
     $text | Out-File -FilePath $OutFile -Append:$Append
