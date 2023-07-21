@@ -83,9 +83,14 @@ function Get-ParsedHelpParam {
                 if ($param.IndexOf('[') -ge 0 -and $param.IndexOf(']') -ge 0) {
                     # NOTE: This is a basic solution and may not cover more complex
                     # scenarios where there are multiple sets of brackets in a param.
-                    $match = $param | Select-String -Pattern '\[([a-zA-Z0-9\-#]+)\]'
-                    $paramAlt = $param.Replace($match.Matches[0].Groups[0].Value, $match.Matches[0].Groups[1].Value)
-                    $param = $param.Replace($match.Matches[0].Groups[0].Value, '')
+                    $match = $param | Select-String -AllMatches -Pattern '\[([a-zA-Z0-9\-#]+)\]'
+                    if ($match.Matches.Count -gt 0) {
+                        $paramAlt = $param
+                        $match.Matches | ForEach-Object {
+                            $param = $param.Replace($_.Groups[0].Value, '')
+                            $paramAlt = $paramAlt.Replace($_.Groups[0].Value, $_.Groups[1].Value)
+                        }
+                    }
                 }
 
                 $item = [PSCustomObject]@{
