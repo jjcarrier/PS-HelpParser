@@ -11,7 +11,7 @@ function Get-ParsedHelpLineElement {
 
         # The regular expression to use to extract options and flags.
         [Parameter()]
-        [string]$RegEx = '^\s*((-{1,2}|/)[a-zA-Z0-9#]{1}[a-zA-Z0-9\-#\[\]]*)[=\s,]?',
+        [string]$RegEx = '^\s*((-{1,2}|/)[a-zA-Z0-9#?]{1}[a-zA-Z0-9\-#\[\]]*)[=\s,]?',
 
         # A pre-condition for qualifying the $HelpLine as a line containing
         # parameter elements.
@@ -40,7 +40,11 @@ function Get-ParsedHelpLineElement {
             }
         }
 
-        $elems = @($HelpLine.TrimStart().Split().TrimEnd(',; '))
+        # The string replacement is to address an edge case for cmake where
+        # there are no spaces between the options/flags:
+        # -h,-H,--help,-help,-usage,/? = Print usage information and exit.
+        # --version,-version,/V [<file>]
+        $elems = @($HelpLine.TrimStart().Replace(',-', ', -').Replace(',/', ', /').Split().TrimEnd(',; '))
         if ($elems.Count -eq 0) {
             return
         }
@@ -225,7 +229,8 @@ function New-ParsedHelpParamCompletionResult
             # the same issue. In this case, it may be best to store a list of all parameter
             # strings and determine if another entry exists that would introduce this problem.
             $listItem = $ParamInfo.Param
-            if ($ParamInfo.Param.StartsWith('-') -and $ParamInfo.Param.Length -eq 2 -and $ParamInfo.Param[1] -cmatch '[A-Z]') {
+            if (($ParamInfo.Param.StartsWith('-') -or $ParamInfo.Param.StartsWith('/')) -and
+                ($ParamInfo.Param.Length -eq 2) -and ($ParamInfo.Param[1] -cmatch '[A-Z]')) {
                 $listItem += ' '
             }
 
@@ -334,6 +339,11 @@ function Get-ParsedHelpParamValue
         [Parameter()]
         [switch]$ParamValueAssignment,
 
+        # To be set when the command uses MS-DOS style syntax
+        # (i.e. /PARAMNAME:PARAMVALUE)
+        [Parameter()]
+        [switch]$MsDosMode,
+
         # Reference which will be updated with the appropriate string to be passed
         # into New-ParsedHelpValueCompletionResult.
         [Parameter()]
@@ -341,12 +351,18 @@ function Get-ParsedHelpParamValue
     )
 
     begin {
+        if ($MsDosMode) {
+            $assignToken = ':'
+        } else {
+            $assignToken = '='
+        }
+
         if ($ParamValueAssignment) {
-            $paramElems = $WordToComplete.Split('=')
+            $paramElems = $WordToComplete.Split($assignToken)
             $paramName = $paramElems[0]
             $paramValue = $paramElems[-1]
             if ($null -ne $ResultPrefix) {
-                $ResultPrefix.Value = "$paramName="
+                $ResultPrefix.Value = "$paramName$assignToken"
             }
         } else {
             $paramName = Get-ParsedHelpPrevParam -CommandAst $CommandAst -CursorPosition $CursorPosition
@@ -358,11 +374,11 @@ function Get-ParsedHelpParamValue
     }
 
     process {
-        if ($paramName.Contains('=')) { return }
+        if ($paramName.Contains($assignToken)) { return }
 
         $HelpLine |
             Get-ParsedHelpParam |
-            Where-Object { ($_.Param -match "^$paramName=?$") -and ($_.Values.Count -gt 0) } |
+            Where-Object { ($_.Param -match "^$paramName$assignToken`?$") -and ($_.Values.Count -gt 0) } |
             ForEach-Object { $_.Values } |
             Where-Object { $_ -like "$paramValue*" }
     }
