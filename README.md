@@ -3,7 +3,7 @@
 ![PSGallery](https://img.shields.io/powershellgallery/p/HelpParser)
 [![CI](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml/badge.svg)](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml)
 
-> **Note**
+> [!NOTE]\
 > This is a work in progress.
   There are known flaws, but it is in a very much usable state.
 
@@ -29,7 +29,7 @@ Import-Module HelpParser
 
 ## PSReadLine
 
-Persumably, users of this module are using it to gain easy to implement
+Presumably, users of this module are using it to gain easy to implement
 tab-completion for their favorite CLI programs in PowerShell.
 
 For full featured (tab)completion it is recommended to enable PSReadLine, this
@@ -78,7 +78,7 @@ other methods of tab completion):
 
 [PS-TabCompletions](https://github.com/jjcarrier/PS-TabCompletions)
 
-> **Note**
+> [!NOTE]\
 > The examples provided in the repo linked above are not necessarily complete
   solutions. For instance the `gcc` handling could be customized further to use
   `gcc -v --help` to obtain even more tab completion results, but this comes at
