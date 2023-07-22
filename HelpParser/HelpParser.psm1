@@ -1,5 +1,26 @@
 <#
 .DESCRIPTION
+    Copy data from the last parameter to its siblings.
+    This currently only entails the $Tail data.
+#>
+function Copy-LastSiblingData
+{
+    param(
+        # The array containing all the parsed parameters.
+        [array]$ParsedParams
+    )
+
+    if ($ParsedParams.Count -gt 0) {
+        $sibling = $ParsedParams[-1].Sibling.Value
+        while ($null -ne $sibling) {
+            $sibling.Tail = $ParsedParams[-1].Tail
+            $sibling = $sibling.Sibling.Value
+        }
+    }
+}
+
+<#
+.DESCRIPTION
     Parses a single line of help data for flag and option parameters.
 #>
 function Get-ParsedHelpLineElement {
@@ -79,15 +100,7 @@ function Get-ParsedHelpParam {
         $paramLineElems = Get-ParsedHelpLineElement -HelpLine $HelpLine  -IndentationCount ([ref]$indentCount)
 
         if ($null -ne $paramLineElems) {
-            # Before processing new parameter, copy the $Tail data to each
-            # sibling of the last parameter.
-            if ($parsedParams.Count -gt 0) {
-                $sibling = $parsedParams[-1].Sibling.Value
-                while ($null -ne $sibling) {
-                    $sibling.Tail = $parsedParams[-1].Tail
-                    $sibling = $sibling.Sibling.Value
-                }
-            }
+            Copy-LastSiblingData -ParsedParams $parsedParams
 
             $sibling = [ref]$null
             $paramLineElems.Value | ForEach-Object {
@@ -174,6 +187,7 @@ function Get-ParsedHelpParam {
         $lineNumber++
     }
     end {
+        Copy-LastSiblingData -ParsedParams $parsedParams
         $parsedParams | Sort-Object -Property "Param" -CaseSensitive
     }
 }
