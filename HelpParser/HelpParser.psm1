@@ -23,7 +23,8 @@ function Copy-LastSiblingData
 .DESCRIPTION
     Parses a single line of help data for flag and option parameters.
 #>
-function Get-ParsedHelpLineElement {
+function Get-ParsedHelpLineElement
+{
     [CmdletBinding()]
     param (
         # The help data to parse.
@@ -83,7 +84,8 @@ function Get-ParsedHelpLineElement {
 .DESCRIPTION
     Parses the provided help data for flag and option parameters.
 #>
-function Get-ParsedHelpParam {
+function Get-ParsedHelpParam
+{
     [CmdletBinding()]
     param (
         # The help data to parse.
@@ -196,7 +198,8 @@ function Get-ParsedHelpParam {
 .DESCRIPTION
     Parses the provided help data for flag parameters.
 #>
-function Get-ParsedHelpFlag {
+function Get-ParsedHelpFlag
+{
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param (
@@ -214,7 +217,8 @@ function Get-ParsedHelpFlag {
 .DESCRIPTION
     Parses the provided help data for option parameters.
 #>
-function Get-ParsedHelpOption {
+function Get-ParsedHelpOption
+{
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param (
