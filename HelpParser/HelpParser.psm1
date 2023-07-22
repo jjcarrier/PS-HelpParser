@@ -498,7 +498,7 @@ function New-HelpParserTabCompleter
 
     $standardTextSegement = @'
     if ($wordToComplete.StartsWith("--") -and -not $paramValueAssign) {
-        Get-ParsedHelpFlag -HelpData $helpData |
+        Get-ParsedHelpOption -HelpData $helpData |
             New-ParsedHelpParamCompletionResult -WordToComplete $wordToComplete
     } elseif ($wordToComplete.StartsWith("-") -and -not $paramValueAssign) {
         Get-ParsedHelpFlag -HelpData $helpData |
