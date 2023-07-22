@@ -1,4 +1,4 @@
-# HelpParser PowerShell Module
+# Help Documentation Parser PowerShell Module
 
 ![PSGallery](https://img.shields.io/powershellgallery/p/HelpParser)
 [![CI](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml/badge.svg)](https://github.com/jjcarrier/HelpParser/actions/workflows/ci.yml)
@@ -9,7 +9,7 @@
 
 ## Description
 
-Provides a generic solution for parsing a given command's `help` command output.
+Provides a generic solution for parsing a given command's `help` documentation.
 This is primarily intended as a helper for quickly providing tab-completion
 support for arbitrary cmd/bash-centric CLI tools.
 
