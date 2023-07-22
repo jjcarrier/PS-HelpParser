@@ -40,8 +40,8 @@ PSGallery.
 Install-Module -Name "PSReadLine" -Repository PSGallery
 ```
 
-The following is a configuration a recommended configuration that can be added
-to `$PROFILE`. The last line being the most essential setting.
+The following a recommended configuration that can be added to `$PROFILE`. The
+last line being the most essential setting.
 
 ```pwsh
 Set-PSReadLineOption -HistoryNoDuplicates:$true
@@ -94,7 +94,7 @@ other methods of tab completion):
 An example using parameter value completion:
 ![CMake Example](img/cmake_tab_completion.png)
 
-An example using an program that uses Win32/MS-DOS style arguments:
+An example using a program that uses Win32/MS-DOS style arguments:
 ![IPConfig Example](img/ipconfig_tab_completion.png)
 
 Other examples of popular tools (one showing available options another showing
