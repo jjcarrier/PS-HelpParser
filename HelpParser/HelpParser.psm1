@@ -1,5 +1,41 @@
 <#
 .DESCRIPTION
+    Format lines containing tabs into spaces.
+    Normalizing the input data helps to reduce regex complexity.
+#>
+function Format-TabsToSpaces
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(ValueFromPipeline = $true)]
+        [string]$Text,
+
+        [Parameter()]
+        [int]$TabWidth = 8
+    )
+    process {
+        if ($null -eq $Text) { '' }
+
+        [regex]$pattern = '\t'
+        $startIndex = 0
+        $offset = 0
+        $output = @()
+        $pattern.Matches($Text) | ForEach-Object {
+            $spaces = $TabWidth - (($_.Index + $offset) % $TabWidth)
+            $offset += $spaces - 1
+            $output += $Text.SubString($startIndex, ($_.Index - $startIndex))
+            $output += (' ' * $spaces)
+            $startIndex = $_.Index + 1
+        }
+
+        $output += $Text.SubString($startIndex)
+
+        $output -join ''
+    }
+}
+
+<#
+.DESCRIPTION
     Copy data from the last parameter to its siblings.
     This currently only entails the $Tail data.
 #>
@@ -99,6 +135,7 @@ function Get-ParsedHelpParam
     }
     process {
         $indentCount = 0
+        $HelpLine = $HelpLine | Format-TabsToSpaces
         $paramLineElems = Get-ParsedHelpLineElement -HelpLine $HelpLine  -IndentationCount ([ref]$indentCount)
 
         if ($null -ne $paramLineElems) {
