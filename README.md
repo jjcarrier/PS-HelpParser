@@ -10,7 +10,7 @@
 ## Description
 
 Provides a generic solution for parsing a given command's `help` documentation.
-This is primarily intended as a helper for quickly providing tab-completion
+This is primarily intended as a helper for quickly enabling tab-completion
 support for arbitrary cmd/bash-centric CLI tools.
 
 ## Installation
@@ -40,8 +40,8 @@ PSGallery.
 Install-Module -Name "PSReadLine" -Repository PSGallery
 ```
 
-The following a recommended configuration that can be added to `$PROFILE`. The
-last line being the most essential setting.
+The following is a recommended configuration that can be added to `$PROFILE`.
+The last line being the most essential setting.
 
 ```pwsh
 Set-PSReadLineOption -HistoryNoDuplicates:$true
