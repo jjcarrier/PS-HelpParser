@@ -1,11 +1,11 @@
 @{
     RootModule = 'HelpParser.psm1'
-    ModuleVersion = '0.3.2'
+    ModuleVersion = '0.3.3'
     GUID = 'f36e4dd6-6d0b-4184-8f20-405c9670138f'
     Author = 'Jon Carrier'
     CompanyName = 'Unknown'
     Copyright = '(c) Jon Carrier. All rights reserved.'
-    Description = 'Provides a generic parser for well-formatted command-help documentation.'
+    Description = 'Provides a generic parser for well-formatted command-help documentation. This module is intended to be used to easily/quickly create tab-completion scripts for a wide variety of CLI tools.'
 
     # CompatiblePSEditions = @()
     # PowerShellVersion = ''
