@@ -15,7 +15,7 @@ support for arbitrary cmd/bash-centric CLI tools.
 
 ## Installation
 
-Install the module from `PSGallery`:
+Install the module from [PSGallery](https://www.powershellgallery.com/packages/HelpParser):
 
 ```pwsh
 Install-Module -Name HelpParser -Repository PSGallery
