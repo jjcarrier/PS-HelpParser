@@ -219,7 +219,9 @@ function Get-ParsedHelpParam
             if ([string]::IsNullOrWhiteSpace($HelpLine)) {
                 $parsedParams[-1].TailEnd = $true
             } elseif (-not($parsedParams[-1].TailEnd)) {
-                $parsedParams[-1].Tail += (' ' * ($indentCount - $parsedParams[0].Indent)) + $HelpLine.TrimStart()
+                $numSpaces = ($indentCount - $parsedParams[0].Indent)
+                if ($numSpaces -lt 0) { $numSpaces = 0 }
+                $parsedParams[-1].Tail += (' ' * $numSpaces) + $HelpLine.TrimStart()
             }
         }
 
